@@ -1,6 +1,6 @@
 [project]
 name = "assayo"
-version = "0.0.19"
+version = "0.0.20"
 description = "Visualization and analysis you git log. Creates HTML report about commits statistics. In addition the typical git stats, this package can show statistics by departments, tasks or determine the location of users."
 license = {text = "GPL-3.0"}
 readme = "README.md"
