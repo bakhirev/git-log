@@ -9,7 +9,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="assayo",
-    version="0.0.18",
+    version="0.0.19",
     author="Aleksei Bakhirev",
     author_email="alexey-bakhirev@yandex.ru",
     description="Visualization and analysis you git log. Creates HTML report about commits statistics. In addition the typical git stats, this package can show statistics by departments, tasks or determine the location of users.",
