@@ -1,9 +1,3 @@
-/*
- * @Descripttion: assayo
- * @version: 0.0.1
- * @Author: 
- */
- 
 package assayo
 
 import (
@@ -35,7 +29,7 @@ func getSaveLogCommand(fileName string) string {
 
 func assayo() error {
  // folder, when library was saved
- sourceDir := "./assayo"
+ sourceDir := "../pkg/mod/github/bakhirev/git-log@v0.0.3/assayo"
  sourcePath := filepath.Dir(os.Args[0])
 
  // folder, when user run library
