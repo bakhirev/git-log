@@ -146,10 +146,14 @@ gem uninstall assayo
 
 ### Go
 
-1. Собрать билд: ```go build -o assayogo main.go```
+1. Собрать билд: ```go build -o ./go/assayo ./go/main.go```
 2. Добавить тег:
 ```
 git tag latest
 git push --tags
 ```
 3. Запушить изменения ```git push```
+
+Проверяем
+Ставим пакет: ```go install github.com/bakhirev/git-log```
+Проверяем: ```C:\Users\{user}\go``` на наличие пакета и ```bin```
