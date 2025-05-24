@@ -27,7 +27,7 @@ func getSaveLogCommand(fileName string) string {
  return fmt.Sprintf("git --no-pager log %s --oneline --all --reverse --date=iso-strict --pretty=format:\"%%ad>%%aN>%%aE>%%s\" > %s", raw, fileName)
 }
 
-func assayo() error {
+func Assayo() error {
  // folder, when library was saved
  sourceDir := "../pkg/mod/github/bakhirev/git-log@v0.0.3/assayo"
  sourcePath := filepath.Dir(os.Args[0])
@@ -73,10 +73,10 @@ func assayo() error {
  return nil
 }
 
-func init() {
- assayo()
+func Init() {
+ Assayo()
 }
 
-func main() {
- assayo()
+func Main() {
+ Assayo()
 }

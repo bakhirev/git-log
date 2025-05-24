@@ -153,7 +153,13 @@ git tag latest
 git push --tags
 ```
 Удаляем тег: ```git push --delete origin latest```
-3. Запушить изменения ```git push```
+3. Запушить изменения ```git push -f --tags```
+
+```
+go clean -cache
+go clean -modcache
+go clean -testcache
+```
 
 Проверяем
 Ставим пакет: ```go install github.com/bakhirev/git-log```
