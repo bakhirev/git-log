@@ -144,3 +144,12 @@ gem uninstall assayo
 
 При запуске может быть ошибка пути (No such file or directory, если Ruby установлен НЕ в папку по умолчанию.
 
+### Go
+
+1. Собрать билд: ```go build -o assayogo main.go```
+2. Добавить тег:
+```
+git tag latest
+git push --tags
+```
+3. Запушить изменения ```git push```
