@@ -1,4 +1,4 @@
-package assayo
+package main
 
 import (
  "fmt"
