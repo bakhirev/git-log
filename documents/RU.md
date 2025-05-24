@@ -146,15 +146,11 @@ gem uninstall assayo
 
 ### Go
 
-1. Собрать билд: ```go build -o ./go/assayo ./go/main.go```
-2. Добавить тег:
-```
-git tag latest
-git push --tags
-```
+1. Собрать билд: ```go build -o assayo.exe main.go```
+2. Добавить тег:```git tag latest```
 Удаляем тег: ```git push --delete origin latest```
-3. Запушить изменения ```git push -f --tags```
-
+Запушить изменения ```git push -f --tags```
+3. Сброс кеша go:
 ```
 go clean -cache
 go clean -modcache

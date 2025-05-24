@@ -16,7 +16,7 @@ func showMessage(message string) {
  }
 }
 
-func getSaveLogCommand(fileName string) string {
+func getSaveLogCommand() string {
  raw := "--raw --numstat"
  for _, arg := range os.Args {
   if arg == "--no-file" {
@@ -24,12 +24,12 @@ func getSaveLogCommand(fileName string) string {
    break
   }
  }
- return fmt.Sprintf("git --no-pager log %s --oneline --all --reverse --date=iso-strict --pretty=format:\"%%ad>%%aN>%%aE>%%s\" > %s", raw, fileName)
+ return fmt.Sprintf("git --no-pager log %s --oneline --all --reverse --date=iso-strict --pretty=format:\"%%ad>%%aN>%%aE>%%s\"", raw)
 }
 
 func Assayo() error {
  // folder, when library was saved
- sourceDir := "../pkg/mod/github/bakhirev/git-log@v0.0.3/assayo"
+ sourceDir := "../pkg/mod/github.com/bakhirev/git-log@v0.0.7/assayo"
  sourcePath := filepath.Dir(os.Args[0])
 
  // folder, when user run library
@@ -48,33 +48,24 @@ func Assayo() error {
 
  // 2. Run 'git log' and save output in file ./assayo/log.txt
  showMessage("reading git log was started")
- fileName := filepath.Join(distPath, distDir, "log.txt")
- commandStr := getSaveLogCommand(fileName)
+ commandStr := getSaveLogCommand()
  command = exec.Command("bash", "-c", commandStr)
- if err := command.Run(); err != nil {
+ outputBytes, err := command.Output()
+ if err != nil {
   fmt.Println("Error saving git log:", err)
   return err
  }
  showMessage("the file with git log was saved")
 
  // 3. Replace symbols in ./assayo/log.txt
- content, err := os.ReadFile(fileName)
- if err != nil {
-  fmt.Println("Error reading file:", err)
-  return err
- }
- newContent := string(content)
- newContent = "" + newContent + ");\nr(f`"
+ newContent := string(outputBytes)
+ fileName := filepath.Join(distPath, distDir, "log.txt")
  if err := os.WriteFile(fileName, []byte("R(f`"+newContent+"`);"), 0644); err != nil {
   fmt.Println("Error writing file:", err)
   return err
  }
 
  return nil
-}
-
-func init() {
- Assayo()
 }
 
 func main() {
