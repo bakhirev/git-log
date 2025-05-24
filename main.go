@@ -73,10 +73,10 @@ func Assayo() error {
  return nil
 }
 
-func Init() {
+func init() {
  Assayo()
 }
 
-func Main() {
+func main() {
  Assayo()
 }
