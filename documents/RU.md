@@ -152,6 +152,7 @@ gem uninstall assayo
 git tag latest
 git push --tags
 ```
+Удаляем тег: ```git push --delete origin latest```
 3. Запушить изменения ```git push```
 
 Проверяем
