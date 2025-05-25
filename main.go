@@ -34,31 +34,37 @@ func getSaveLogCommand() string {
  return fmt.Sprintf("git --no-pager log %s --oneline --all --reverse --date=iso-strict --pretty=format:\"%%ad>%%aN>%%aE>%%s\"", raw)
 }
 
-
-func getCloneRepoCommand(path string) string {
- return fmt.Sprintf("cd %s && git clone https://github.com/bakhirev/assayo.git && mv ./assayo ./source && mv ./source/build ./assayo && rm -r -f ./source && rm -r -f ./src && rm -r -f ./documents && rm -r -f ./public", path)
+func getCloneRepoCommand() string {
+ return "git clone https://github.com/bakhirev/assayo.git && mv ./assayo ./source && mv ./source/build ./assayo && rm -r -f ./source"
 }
 
 func Assayo() error {
  // folder, when library was saved
- sourceDir := "../pkg/mod/github.com/bakhirev/git-log@v0.0.8/assayo"
+ sourceDir := "../pkg/mod/github.com/bakhirev/assayo@v0.0.1/"
  sourcePath := filepath.Dir(os.Args[0])
 
  // folder, when user run library
  distDir := "assayo"
  distPath, _ := os.Getwd()
 
- source := filepath.Join(sourcePath, sourceDir)
+ home := filepath.Join(sourcePath, sourceDir)
+ source := filepath.Join(home, "./assayo")
  target := filepath.Join(distPath, distDir)
+ 
+ err := os.Chdir(home)
+ if err != nil {
+   fmt.Println("Cant found home dir:", err)
+   return err
+ }
  
  // 0. Clone actual report from GIT
  if checkDirExists(source) {
   showMessage("actual report template already exist")
  } else {
-  commandStr := getCloneRepoCommand("../pkg/mod/github.com/bakhirev/git-log@v0.0.8")
-  command = exec.Command("bash", "-c", commandStr)
+  commandStr := getCloneRepoCommand()
+  command := exec.Command("bash", "-c", commandStr)
   if err := command.Run(); err != nil {
-   fmt.Println("Error get actual template:", err)
+   fmt.Println(commandStr)
    return err
   }
  }
@@ -77,8 +83,9 @@ func Assayo() error {
 
  // 2. Run 'git log' and save output in string
  showMessage("reading git log was started")
+ os.Chdir(distPath)
  commandStr := getSaveLogCommand()
- command = exec.Command("bash", "-c", commandStr)
+ command := exec.Command("bash", "-c", commandStr)
  outputBytes, err := command.Output()
  if err != nil {
   fmt.Println("Error saving git log:", err)
@@ -88,7 +95,7 @@ func Assayo() error {
 
  // 3. Replace symbols in ./assayo/log.txt
  newContent := string(outputBytes)
- fileName := filepath.Join(distPath, distDir, "log.txt")
+ fileName := filepath.Join(target, "log.txt")
  if err := os.WriteFile(fileName, []byte("R(f`"+newContent+"`);"), 0644); err != nil {
   fmt.Println("Error writing file:", err)
   return err
