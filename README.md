@@ -33,7 +33,7 @@ Ruby:
 gem install assayo
 assayo
 ```
-Goland:
+Go:
 ```
 go get github.com/bakhirev/assayo
 go install github.com/bakhirev/assayo
