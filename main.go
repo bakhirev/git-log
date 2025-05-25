@@ -16,6 +16,13 @@ func showMessage(message string) {
  }
 }
 
+func checkDirExists(path string) bool {
+  if _, err := os.Stat(path); os.IsNotExist(err) {
+    return false
+  }
+  return true
+}
+
 func getSaveLogCommand() string {
  raw := "--raw --numstat"
  for _, arg := range os.Args {
@@ -27,26 +34,48 @@ func getSaveLogCommand() string {
  return fmt.Sprintf("git --no-pager log %s --oneline --all --reverse --date=iso-strict --pretty=format:\"%%ad>%%aN>%%aE>%%s\"", raw)
 }
 
+
+func getCloneRepoCommand(path string) string {
+ return fmt.Sprintf("cd %s && git clone https://github.com/bakhirev/assayo.git && mv ./assayo ./source && mv ./source/build ./assayo && rm -r -f ./source && rm -r -f ./src && rm -r -f ./documents && rm -r -f ./public", path)
+}
+
 func Assayo() error {
  // folder, when library was saved
- sourceDir := "../pkg/mod/github.com/bakhirev/git-log@v0.0.7/assayo"
+ sourceDir := "../pkg/mod/github.com/bakhirev/git-log@v0.0.8/assayo"
  sourcePath := filepath.Dir(os.Args[0])
 
  // folder, when user run library
  distDir := "assayo"
  distPath, _ := os.Getwd()
 
- // 1. Copy folder ./assayo from package to ./assayo in project
  source := filepath.Join(sourcePath, sourceDir)
  target := filepath.Join(distPath, distDir)
- command := exec.Command("cp", "-r", source, target)
- if err := command.Run(); err != nil {
-  fmt.Println("Error copying directory:", err)
-  return err
+ 
+ // 0. Clone actual report from GIT
+ if checkDirExists(source) {
+  showMessage("actual report template already exist")
+ } else {
+  commandStr := getCloneRepoCommand("../pkg/mod/github.com/bakhirev/git-log@v0.0.8")
+  command = exec.Command("bash", "-c", commandStr)
+  if err := command.Run(); err != nil {
+   fmt.Println("Error get actual template:", err)
+   return err
+  }
+ }
+
+ // 1. Copy folder ./assayo from package to ./assayo in project
+ if checkDirExists(target) {
+  showMessage("directory with HTML report already exist")
+ } else {
+  command := exec.Command("cp", "-r", source, target)
+  if err := command.Run(); err != nil {
+   fmt.Println("Error copying directory:", err)
+   return err
+  }
  }
  showMessage("directory with HTML report was created")
 
- // 2. Run 'git log' and save output in file ./assayo/log.txt
+ // 2. Run 'git log' and save output in string
  showMessage("reading git log was started")
  commandStr := getSaveLogCommand()
  command = exec.Command("bash", "-c", commandStr)
