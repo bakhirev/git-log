@@ -160,3 +160,11 @@ go clean -i
 Проверяем
 Ставим пакет: ```go install github.com/bakhirev/git-log```
 Проверяем: ```C:\Users\{user}\go``` на наличие пакета и ```bin```
+
+### Docker
+
+1. собрать билд ```npm run build:docker```
+2. собрать образ ```docker build -t assayo .```
+3. визуально проверить образ ```docker run --name assayo -p 80:80 -d assayo```
+4. поставить тег ```docker tag assayo bakhirev/assayo:latest```
+5. запушить образ в Docker Hub ```docker push bakhirev/assayo:latest```
