@@ -1,6 +1,6 @@
 {
   "name": "assayo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "re-install": "npm uninstall -g AssayoNpx && npm i -g"
   },
