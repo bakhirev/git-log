@@ -1,7 +1,7 @@
 {
   "name": "bakhirev/assayo",
   "type": "library",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Visualization and analysis you git log. Creates HTML report about commits statistics, employees and company. Also it parse git log and give a achievements based on git stat. In addition the typical git stats, this package can show statistics by departments, tasks or determine the location of users. It quickly parses large git log files.",
   "keywords": [
     "git",
