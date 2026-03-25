@@ -11,7 +11,7 @@
   "main": "./index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bakhirev/git-log-stat.git"
+    "url": "https://github.com/bakhirev/git-log.git"
   },
   "keywords": [
     "git",
