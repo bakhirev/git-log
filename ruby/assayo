@@ -1,61 +1,124 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-def get_save_log_command()
-  $raw = "--raw --numstat"
-  if ARGV.include?('--no-file')
-    $raw = ""
+require 'fileutils'
+require 'etc'
+
+module Assayo
+  module LoggerMixin
+    private
+
+    def debug_enabled?
+      ARGV.include?('--debug')
+    end
+
+    def debug(message)
+      return unless debug_enabled?
+      warn "[Assayo][DEBUG] #{message}"
+    end
   end
-  return "git --no-pager log #{$raw} --oneline --all --reverse --date=iso-strict --pretty=format:\"%ad>%aN>%aE>%s\""
+
+  class Reporter
+    LIB_SOURCE_RELATIVE = '../assayo'.freeze
+    DIST_DIR_NAME = 'assayo'.freeze
+    TEMP_LOG_FILENAME = 'log.txt'.freeze
+
+    include LoggerMixin
+
+    GIT_FORMAT = '%ad>%aN>%aE>%s'.freeze
+    DANGEROUS_CHARS = /[\\`$%\x00-\x1f\x7f]/.freeze
+
+    def initialize
+      @script_dir = File.expand_path(__dir__)
+    end
+
+    def run
+      copy_library_files
+      generate_git_log
+      assemble_final_payload
+      debug("Report generation finished successfully.")
+    rescue StandardError => e
+      abort "Assayo: Fatal error — #{e.class}: #{e.message}"
+    end
+
+    private
+
+    def source_path
+      @source_path ||= File.expand_path(LIB_SOURCE_RELATIVE, @script_dir)
+    end
+
+    def dist_path
+      @dist_path ||= File.join(Dir.pwd, DIST_DIR_NAME)
+    end
+
+    def log_file_path
+      @log_file_path ||= File.join(dist_path, TEMP_LOG_FILENAME)
+    end
+
+    # Копирование ассетов отчета
+    def copy_library_files
+      raise "Source directory not found at '#{source_path}'" unless Dir.exist?(source_path)
+      
+      FileUtils.mkdir_p(dist_path) unless Dir.exist?(dist_path)
+      debug("Copying assets from '#{source_path}' to '#{dist_path}'")
+      FileUtils.cp_r("#{source_path}/.", dist_path, remove_destination: true)
+    rescue SystemCallError => e
+      raise IOError, "Failed to copy library files: #{e.message}"
+    end
+
+    def generate_git_log
+      cmd = build_git_command
+      debug("Spawning process: #{cmd.shelljoin}")
+
+      begin
+        File.open(log_file_path, 'w') do |file|
+          Open3.popen2e(*cmd) do |stdin, stdout_err, wait_thr|
+            stdin.close
+            stdout_err.each_line { |line| file.write(line) }
+            
+            exit_status = wait_thr.value
+            unless exit_status.success?
+              raise RuntimeError, "Git exited with code #{exit_status.exitstatus}"
+            end
+          end
+        end
+        debug("Raw git log streamed to '#{log_file_path}'")
+      rescue Errno::ENOENT
+        raise "Executable 'git' not found in PATH."
+      end
+    end
+
+    def build_git_command
+      base_args = %w[git --no-pager log --oneline --all --reverse --date=iso-strict]
+      base_args << '--raw' << '--numstat' unless ARGV.include?('--no-file')
+      base_args.concat(%W[--pretty=format:#{GIT_FORMAT}])
+      base_args
+    end
+
+    def assemble_final_payload
+      debug('Assembling final payload...')
+      
+      output_lines = +'R(f`'
+      File.foreach(log_file_path, encoding: 'UTF-8') do |line|
+        sanitized = line.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+                             .gsub(DANGEROUS_CHARS, '')
+                             .chomp
+        next if sanitized.empty?
+        
+        output_lines << sanitized << "\n"
+      end
+      output_lines.chomp!
+      output_lines << '`)'
+
+      File.binwrite(log_file_path, output_lines)
+      debug('Final payload assembled and written.')
+    rescue SystemCallError => e
+      raise IOError, "Failed during assembly or write of final payload: #{e.message}"
+    end
+  end
 end
 
-def show_message(message)
-  if ARGV.include?('--debug')
-    puts "Assayo: #{message}"
-  end
+if __FILE__ == $PROGRAM_NAME
+  reporter = Assayo::Reporter.new
+  reporter.run
 end
-
-def write_in_file(fileName, content)
-  File.open(fileName, 'w') do |file|
-    file.write(content)
-  end
-end
-
-def create_report()
-  # folder, when library was saved
-  $SOURCE_DIR = '../assayo'
-  $SOURCE_PATH = __dir__
-
-  # folder, when user run library
-  $DIST_DIR = 'assayo'
-  $DIST_PATH = Dir.pwd
-
-  # 1. Copy folder ./assayo from package to ./assayo in project
-  $source = File.join($SOURCE_PATH, $SOURCE_DIR)
-  $target = File.join($DIST_PATH, $DIST_DIR)
-  $copy_cmd = "cp -r #{$source} #{$target}"
-  begin
-    system($copy_cmd) or raise $copy_cmd
-  rescue => e
-    puts "Assayo: cant copy files: #{e.message}"
-  end
-  show_message("directory with HTML report was be created")
-
-  # Run "git log" and save output in file ./assayo/log.txt
-  show_message("reading git log was be started")
-  $fileName = File.join(Dir.pwd, $DIST_DIR, "log.txt")
-  $save_log_cmd = get_save_log_command()
-  begin
-    system($save_log_cmd, { out: $fileName }) or raise $save_log_cmd
-  rescue => e
-    puts "Assayo: cant create log file: #{e.message}"
-  end
-  show_message("the file with git log was be saved")
-
-  # 3. Replace symbols in ./assayo/log.txt
-  $content = IO.read($fileName)
-  $content = $content.gsub(/`/, "")
-  $content = $content.gsub(/\$/, "")
-  write_in_file($fileName, "R(f\`#{$content}\`);")
-end
-
-create_report()
