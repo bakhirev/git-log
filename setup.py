@@ -9,7 +9,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="assayo",
-    version="0.1.5",
+    version="0.1.6",
     author="Aleksei Bakhirev",
     author_email="alexey-bakhirev@yandex.ru",
     description="Visualization and analysis you git log. Creates HTML report about commits statistics. In addition the typical git stats, this package can show statistics by departments, tasks or determine the location of users.",
@@ -27,7 +27,7 @@ setup(
     zip_safe=False,
     package_data = {"assayo":["assayo/**/*", "README.md"]},
     include_package_data=True,
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     license="License :: OSI Approved :: MIT License",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
