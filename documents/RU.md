@@ -174,6 +174,18 @@ go clean -i
 Ставим пакет: ```go install github.com/bakhirev/git-log```
 Проверяем: ```C:\Users\{user}\go``` на наличие пакета и ```bin```
 
+### Windows
+
+Состоит из 4 файлов и папки build
+```
+create-report.bat
+create-report.ps1
+install.bat
+uninstall.bat
+```
+
+При инсталяции bat попытается забрать свежую сборку из основной репы.
+
 ### Docker
 
 1. собрать билд ```npm run build:docker```
